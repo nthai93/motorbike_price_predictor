@@ -1,0 +1,21 @@
+# Core
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.2
+xgboost==2.1.1
+joblib==1.4.2
+
+# Visualization
+matplotlib==3.9.2
+seaborn==0.13.2
+plotly==5.24.1
+
+# App Framework
+streamlit==1.51.0
+
+# Optional (UI / performance enhancements)
+altair==5.3.0
+protobuf==5.28.3
+
+# To suppress warnings and ensure consistent behavior
+typing-extensions>=4.12.2
