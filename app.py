@@ -96,9 +96,24 @@ st.sidebar.caption("💡 Bấm mũi tên **< / >** góc trái để ẩn hoặc 
 
 @st.cache_resource
 def load_model_and_scaler():
-    """Load trained XGBoost model and StandardScaler."""
-    model = joblib.load("output_datasets/best_model_XGBoost.pkl")
-    scaler = joblib.load("output_datasets/scaler_XGBoost.pkl")
+    """Load trained model & scaler safely (auto unzip if needed)."""
+    MODEL_PATH = Path("output_datasets/best_model_XGBoost.pkl")
+    SCALER_PATH = Path("output_datasets/scaler_XGBoost.pkl")
+    ZIP_PATH = Path("output_datasets/model_files.zip")
+
+    # 🔹 Auto unzip if missing
+    if not (MODEL_PATH.exists() and SCALER_PATH.exists()):
+        if ZIP_PATH.exists():
+            with zipfile.ZipFile(ZIP_PATH, "r") as zip_ref:
+                zip_ref.extractall("output_datasets")
+            st.info("🔄 Extracted model_files.zip automatically.")
+        else:
+            st.error("❌ Missing model files. Please upload model_files.zip to output_datasets/.")
+            st.stop()
+
+    # 🔹 Load model & scaler
+    model = joblib.load(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
     return model, scaler
 
 
