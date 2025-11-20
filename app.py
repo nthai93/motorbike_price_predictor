@@ -227,19 +227,26 @@ elif menu == "📊 Model Evaluation":
     y_true_vnd = np.expm1(y_full)
     y_pred_vnd = np.expm1(y_pred_log)
 
-    # --- Clean invalid predictions ---
     # --- Clean invalid & non-finite values ---
-    mask_valid_vnd = (y_true_vnd > 0) & (y_true_vnd < 5e8) & (y_pred_vnd > 0) & (y_pred_vnd < 5e8)
+    mask_valid_vnd = (
+        (y_true_vnd > 0) & (y_true_vnd < 5e8) &
+        (y_pred_vnd > 0) & (y_pred_vnd < 5e8)
+    )
     mask_valid_log = np.isfinite(y_full) & np.isfinite(y_pred_log)
 
     y_true_vnd, y_pred_vnd = y_true_vnd[mask_valid_vnd], y_pred_vnd[mask_valid_vnd]
     y_full, y_pred_log = y_full[mask_valid_log], y_pred_log[mask_valid_log]
 
+    # --- Clip predictions to avoid overflow when expm1 ---
+    y_pred_log = np.clip(y_pred_log, -5, 20)
+    y_pred_vnd = np.expm1(y_pred_log)
 
+    # --- Compute metrics safely ---
     mae = mean_absolute_error(y_true_vnd, y_pred_vnd)
     rmse = np.sqrt(mean_squared_error(y_true_vnd, y_pred_vnd))
     r2_log = r2_score(y_full, y_pred_log)
     r2_vnd = r2_score(y_true_vnd, y_pred_vnd)
+
 
     # --- Display metrics ---
     col1, col2, col3 = st.columns(3)
