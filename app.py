@@ -104,12 +104,19 @@ def load_model_and_scaler():
 
 @st.cache_resource
 def load_mappings():
-    """Load label encoding mappings from JSON files."""
+    """Load label encoding mappings from JSON files (safe for both local & Streamlit Cloud)."""
     mappings = {}
+    base_dir = os.path.dirname(__file__)
+
     for name in ["thuong_hieu", "loai_xe", "tinh_trang", "xuat_xu", "dong_xe", "phan_khuc_dung_tich"]:
-        with open(f"mappings/{name}.json", "r", encoding="utf-8") as f:
-            mappings[name] = json.load(f)
+        mapping_path = os.path.join(base_dir, "mappings", f"{name}.json")
+        try:
+            with open(mapping_path, "r", encoding="utf-8") as f:
+                mappings[name] = json.load(f)
+        except FileNotFoundError:
+            st.error(f"❌ Không tìm thấy file mapping: {mapping_path}")
     return mappings
+
 
 
 @st.cache_data
