@@ -229,23 +229,34 @@ elif menu == "📊 Model Evaluation":
 
     # --- Clean invalid & non-finite values ---
     mask_valid_vnd = (
+        np.isfinite(y_true_vnd) &
+        np.isfinite(y_pred_vnd) &
         (y_true_vnd > 0) & (y_true_vnd < 5e8) &
         (y_pred_vnd > 0) & (y_pred_vnd < 5e8)
     )
     mask_valid_log = np.isfinite(y_full) & np.isfinite(y_pred_log)
 
-    y_true_vnd, y_pred_vnd = y_true_vnd[mask_valid_vnd], y_pred_vnd[mask_valid_vnd]
-    y_full, y_pred_log = y_full[mask_valid_log], y_pred_log[mask_valid_log]
+    # --- Apply masks safely ---
+    y_true_vnd = y_true_vnd[mask_valid_vnd]
+    y_pred_vnd = y_pred_vnd[mask_valid_vnd]
+    y_full = y_full[mask_valid_log]
+    y_pred_log = y_pred_log[mask_valid_log]
 
-    # --- Clip predictions to avoid overflow when expm1 ---
+    # --- Clip predictions to avoid overflow ---
     y_pred_log = np.clip(y_pred_log, -5, 20)
-    y_pred_vnd = np.expm1(y_pred_log)
+    y_pred_vnd = np.clip(np.expm1(y_pred_log), 0, 5e8)  # Keep in 0–500M range
 
-    # --- Compute metrics safely ---
+    # --- Ensure consistent length ---
+    min_len = min(len(y_true_vnd), len(y_pred_vnd))
+    y_true_vnd, y_pred_vnd = y_true_vnd[:min_len], y_pred_vnd[:min_len]
+    st.write(f"✅ y_true_vnd: {len(y_true_vnd)}, y_pred_vnd: {len(y_pred_vnd)}")
+
+    # --- Compute metrics ---
     mae = mean_absolute_error(y_true_vnd, y_pred_vnd)
     rmse = np.sqrt(mean_squared_error(y_true_vnd, y_pred_vnd))
     r2_log = r2_score(y_full, y_pred_log)
     r2_vnd = r2_score(y_true_vnd, y_pred_vnd)
+
 
 
     # --- Display metrics ---
