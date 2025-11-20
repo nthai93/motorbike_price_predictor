@@ -137,36 +137,13 @@ def load_mappings():
 
 
 
-@st.cache_data
+@st.cache_data(ttl=1)
 def load_reference_data():
-    """Load and preprocess reference dataset used for model evaluation."""
+    """Load reference dataset with all engineered features (used for evaluation)."""
     df = pd.read_csv("output_datasets/motorbike_final_dataset_ref.csv")
-
-
-    # --- Feature reconstruction (to ensure consistency) ---
-    if "Log_Gia" not in df.columns and "Gia" in df.columns:
-        df["Log_Gia"] = np.log1p(df["Gia"])
-    if "Log_So_Km_da_di" not in df.columns and "So_Km_da_di" in df.columns:
-        df["Log_So_Km_da_di"] = np.log1p(df["So_Km_da_di"])
-
-    df["Gia_tren_km"] = np.expm1(df["Log_Gia"]) / (np.expm1(df["Log_So_Km_da_di"]) + 1)
-    df["Tuoi_xe_x_Km"] = df["Tuoi_xe"] * df["Log_So_Km_da_di"]
-    df["Km_moi_nam"] = np.expm1(df["Log_So_Km_da_di"]) / (df["Tuoi_xe"] + 0.1)
-    df["Gia_thuc"] = np.expm1(df["Log_Gia"])
-
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    df.dropna(subset=["Log_Gia", "Log_So_Km_da_di", "Tuoi_xe"], inplace=True)
-
-    # --- Mean log price features ---
-    df["Brand_mean_price"] = df["Thuong_hieu_code"].map(df.groupby("Thuong_hieu_code")["Log_Gia"].mean().to_dict())
-    df["Dong_mean_price"] = df["Dong_xe_code"].map(df.groupby("Dong_xe_code")["Log_Gia"].mean().to_dict())
-    df["Segment_mean_price"] = df["Phan_khuc_dung_tich_code"].map(df.groupby("Phan_khuc_dung_tich_code")["Log_Gia"].mean().to_dict())
-
-    global_mean = df["Log_Gia"].mean()
-    df[["Brand_mean_price", "Dong_mean_price", "Segment_mean_price"]] = (
-        df[["Brand_mean_price", "Dong_mean_price", "Segment_mean_price"]].fillna(global_mean)
-    )
+    st.info(f"✅ Loaded REF dataset: {df.shape} rows, columns = {list(df.columns)[:10]} ...")
     return df
+
 
 # ============================================================
 # 2️⃣ PREDICTION FUNCTION
