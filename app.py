@@ -139,7 +139,8 @@ def load_mappings():
 @st.cache_data
 def load_reference_data():
     """Load and preprocess reference dataset used for model evaluation."""
-    df = pd.read_csv("output_datasets/motorbike_final_dataset_clean.csv")
+    df = pd.read_csv("output_datasets/motorbike_final_dataset_ref.csv")
+
 
     # --- Feature reconstruction (to ensure consistency) ---
     if "Log_Gia" not in df.columns and "Gia" in df.columns:
