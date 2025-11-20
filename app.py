@@ -113,10 +113,10 @@ def load_model_and_scaler():
             st.error("❌ Missing model files. Please upload model_files.zip to output_datasets/.")
             st.stop()
 
-    # 🔹 Load model & scaler
     model = joblib.load(MODEL_PATH)
     scaler = joblib.load(SCALER_PATH)
     return model, scaler
+
 
 
 @st.cache_resource
@@ -188,9 +188,19 @@ def predict_price(user_input_df, model, scaler):
     return float(np.expm1(y_pred[0]))
 
 # --- Load model, scaler, and mappings ---
+# --- Load model, scaler, and mappings ---
 model, scaler = load_model_and_scaler()
 mappings = load_mappings()
 df_ref = load_reference_data()
+
+# 🔍 Debug section
+import os
+st.write("### 🧩 DEBUG INFO")
+st.write("📁 Current directory:", os.getcwd())
+st.write("📂 Files in output_datasets/:", os.listdir("output_datasets"))
+st.write("📦 Model type:", type(model))
+st.write("📏 Scaler type:", type(scaler))
+
 
 # ============================================================
 # 3️⃣ TAB 1: BUSINESS OVERVIEW
