@@ -167,7 +167,7 @@ def load_reference_data():
         df[["Brand_mean_price", "Dong_mean_price", "Segment_mean_price"]].fillna(global_mean)
     )
 
-    st.info(f"✅ Loaded REF dataset: {df.shape} rows, columns = {list(df.columns)[:10]} ...")
+    
     return df
 
 
@@ -198,13 +198,6 @@ model, scaler = load_model_and_scaler()
 mappings = load_mappings()
 df_ref = load_reference_data()
 
-# 🔍 Debug section
-import os
-st.write("### 🧩 DEBUG INFO")
-st.write("📁 Current directory:", os.getcwd())
-st.write("📂 Files in output_datasets/:", os.listdir("output_datasets"))
-st.write("📦 Model type:", type(model))
-st.write("📏 Scaler type:", type(scaler))
 
 
 # ============================================================
